@@ -1,6 +1,8 @@
 import urllib.request
 import re
 import ssl
+import datetime
+import time
 
 
 def getSimeparData():
@@ -297,8 +299,75 @@ def getTempoAgoraData():
     max_5 = str(result_3.group(1))
 
     return [float(min_1), float(max_1), float(plu_1), float(min_3), float(max_3), float(plu_3), float(min_5),float(max_5), float(plu_5)]
-print(getSimeparData())
-print(getClimatempoData())
-print(getTempoAgoraData())
-print(getFreeMeteoData())
+def getWundergroundData():
+    day_1 = datetime.date.today() + datetime.timedelta(days=1)
+    day_3 = datetime.date.today() + datetime.timedelta(days=3)
+    day_5 = datetime.date.today() + datetime.timedelta(days=5)
+
+    def getDataForDay(day):
+        context = ssl._create_unverified_context()
+        request = urllib.request.Request("https://www.wunderground.com/hourly/br/curitiba/date/"+str(day)+'/country=BR')
+        #request.add_header('Location', 'BR')
+        contents = str(urllib.request.urlopen(request,context=context).read())
+
+        cut = contents.find('/strong')
+        contents = contents[cut + 1:]
+        cut = contents.find('/strong')
+        contents = contents[cut + 1:]
+        cut = contents.find('/strong')
+        contents = contents[cut + 1:]
+        cut = contents.find('/strong')
+        contents = contents[cut + 1:]
+        cut = contents.find('in')
+        plu_1_ = contents[cut-15:cut]
+        cut = contents.find('High')
+        max_ = contents[cut:cut+15]
+        contents = contents[cut + 1:]
+        cut = contents.find('/strong')
+        contents = contents[cut -15:]
+        cut = contents.find('in')
+        plu_2_ = contents[cut - 15:cut]
+        cut = contents.find('Low')
+        min_ = contents[cut:cut + 15]
+
+        max,min,plu_1,plu_2 = '', '','',''
+        for letra in max_:
+            if letra in '0123456789,':
+                if letra == ',':
+                    max += '.'
+                else:
+                    max += letra
+
+        for letra in min_:
+            if letra in '0123456789,':
+                if letra == ',':
+                    min += '.'
+                else:
+                    min += letra
+        for letra in plu_1_:
+            if letra in '0123456789.':
+                if letra == ',':
+                    plu_1 += '.'
+                else:
+                    plu_1 += letra
+        for letra in plu_2_:
+            if letra in '0123456789.':
+                if letra == ',':
+                    plu_2 += '.'
+                else:
+                    plu_2 += letra
+        max = float(round((float(max)-32.0)/1.8,0))
+        min = float(round((float(min)-32.0)/1.8,0))
+        plu = round(float(plu_1)*25.4+float(plu_2)*25.4,2)
+        return [min,max,plu]
+
+    return getDataForDay(day_1)+getDataForDay(day_3)+getDataForDay(day_5)
+
+print('Simepar: '+str(getSimeparData()))
+print('Climatempo: '+str(getClimatempoData()))
+print('TempoAgora: '+str(getTempoAgoraData()))
+print('FreeMeteo: '+str(getFreeMeteoData()))
 #getAccuWeatherData()
+print('WunderGround: '+str(getWundergroundData()))
+print('Tire um print (10 SEGUNDOS)')
+time.sleep(10)
