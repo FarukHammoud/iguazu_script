@@ -362,6 +362,38 @@ def getWundergroundData():
         return [min,max,plu]
 
     return getDataForDay(day_1)+getDataForDay(day_3)+getDataForDay(day_5)
+def getWeatherChannelData():
+    def jump(contents,text,days):
+        for i in range(days):
+            cut = contents.find(text)
+            contents = contents[cut + 1:]
+        return contents
+
+    context = ssl._create_unverified_context()
+    request = urllib.request.Request('https://weather.com/pt-BR/clima/5dias/l/BRXX0079:1:BR')
+    #request.add_header('Location', 'BR')
+    contents = str(urllib.request.urlopen(request,context=context).read())
+
+    contents = jump(contents,'dayPartName',3)
+    cut = contents.find('temperature')
+    max_1 = contents[cut+13:cut+15]
+    contents = jump(contents, 'dayPartName', 1)
+    cut = contents.find('temperature')
+    min_1 = contents[cut+13:cut+15]
+    contents = jump(contents, 'dayPartName', 3)
+    cut = contents.find('temperature')
+    max_3 = contents[cut+13:cut+15]
+    contents = jump(contents, 'dayPartName', 1)
+    cut = contents.find('temperature')
+    min_3 = contents[cut+13:cut+15]
+    contents = jump(contents, 'dayPartName', 3)
+    cut = contents.find('temperature')
+    max_5 = contents[cut+13:cut+15]
+    contents = jump(contents, 'dayPartName', 1)
+    cut = contents.find('temperature')
+    min_5 = contents[cut+13:cut+15]
+
+    return [float(min_1),float(max_1),'-',float(min_3),float(max_3),'-',float(min_3),float(max_3),'-']
 
 print('Simepar: '+str(getSimeparData()))
 print('Climatempo: '+str(getClimatempoData()))
@@ -369,5 +401,22 @@ print('TempoAgora: '+str(getTempoAgoraData()))
 print('FreeMeteo: '+str(getFreeMeteoData()))
 #getAccuWeatherData()
 print('WunderGround: '+str(getWundergroundData()))
+print('WeatherChannel: '+str(getWeatherChannelData()))
+
+institutos = []
+institutos.append(getSimeparData())
+institutos.append(getClimatempoData())
+institutos.append(getTempoAgoraData())
+institutos.append(getFreeMeteoData())
+institutos.append(getWundergroundData())
+institutos.append(getWeatherChannelData())
+
+f = open("iguazu"+str(datetime.date.today())+'.csv', "w")
+for instituto in institutos:
+    for dado in instituto:
+        f.write(str(dado)+';')
+    f.write('\n')
+f.close()
+
 print('Tire um print (10 SEGUNDOS)')
 time.sleep(10)
