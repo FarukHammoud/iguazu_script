@@ -395,28 +395,25 @@ def getWeatherChannelData():
 
     return [float(min_1),float(max_1),'-',float(min_3),float(max_3),'-',float(min_3),float(max_3),'-']
 
-print('Simepar: '+str(getSimeparData()))
-print('Climatempo: '+str(getClimatempoData()))
-print('TempoAgora: '+str(getTempoAgoraData()))
-print('FreeMeteo: '+str(getFreeMeteoData()))
-#getAccuWeatherData()
-print('WunderGround: '+str(getWundergroundData()))
-print('WeatherChannel: '+str(getWeatherChannelData()))
+#print('Simepar: '+str(getSimeparData()))
+#print('Climatempo: '+str(getClimatempoData()))
+#print('TempoAgora: '+str(getTempoAgoraData()))
+#print('FreeMeteo: '+str(getFreeMeteoData()))
+#print('WunderGround: '+str(getWundergroundData()))
+#print('WeatherChannel: '+str(getWeatherChannelData()))
 
 institutos = []
 institutos.append(getSimeparData())
 institutos.append(getClimatempoData())
 institutos.append(getTempoAgoraData())
+institutos.append(['-','-','-','-','-','-','-','-','-'])
 institutos.append(getFreeMeteoData())
 institutos.append(getWundergroundData())
 institutos.append(getWeatherChannelData())
 
-f = open("iguazu"+str(datetime.date.today())+'.csv', "w")
+f = open("iguazu-"+str(datetime.date.today())+'.csv', "w")
 for instituto in institutos:
     for dado in instituto:
         f.write(str(dado)+';')
-    f.write('\n')
 f.close()
 
-print('Tire um print (10 SEGUNDOS)')
-time.sleep(10)
